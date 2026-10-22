@@ -1,0 +1,25 @@
+{
+    "name": "KnockoutBalanceControls",
+    "maps": [
+        {
+            "name": "Gamepad",
+            "id": "439250b3-bca4-43d1-8914-47d7d2d5fe52",
+            "actions": [
+                { "name": "Move", "type": "Value", "id": "2f516bee-e03a-4373-a17b-55e1a6fcb1d8", "expectedControlType": "Axis", "processors": "", "interactions": "", "initialStateCheck": true },
+                { "name": "Jump", "type": "Button", "id": "13f6dd35-249d-4d25-90e5-bb271570e662", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false },
+                { "name": "Punch", "type": "Button", "id": "e87fd10b-22b7-4834-a83b-ecf95295685e", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false },
+                { "name": "Dash", "type": "Button", "id": "2a6f1123-1a73-4829-bced-fdba89fa30db", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false },
+                { "name": "Block", "type": "Button", "id": "96ffdd82-8913-4ad6-8f98-b486f912caa6", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false }
+            ],
+            "bindings": [
+                { "name": "", "id": "f00c626b-f248-4bd1-ad7f-6e47798f3be2", "path": "<Gamepad>/leftStick/x", "interactions": "", "processors": "axisDeadzone(min=0.2)", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "2e551eab-340b-44d3-a21e-734b73a2e338", "path": "<Gamepad>/dpad/x", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "20f69caf-f3d1-4eb0-81f4-ab56a2ce585f", "path": "<Gamepad>/buttonSouth", "interactions": "", "processors": "", "groups": "", "action": "Jump", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "983fe7aa-7248-4ec5-b588-6264c3ef89ac", "path": "<Gamepad>/buttonWest", "interactions": "", "processors": "", "groups": "", "action": "Punch", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "68de092c-21ed-47aa-adf2-36e34a8731ee", "path": "<Gamepad>/buttonEast", "interactions": "", "processors": "", "groups": "", "action": "Dash", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "7be3c240-d74c-4c27-ae99-08d9ad1a8788", "path": "<Gamepad>/buttonNorth", "interactions": "", "processors": "", "groups": "", "action": "Block", "isComposite": false, "isPartOfComposite": false }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

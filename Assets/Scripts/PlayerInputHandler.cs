@@ -3,11 +3,22 @@ using UnityEngine.InputSystem;
 
 namespace KnockoutBalance
 {
-    /// <summary>Input adapter supporting both the Unity Input System package and legacy Input.</summary>
+    /// <summary>
+    /// Keeps keyboard input on the Legacy Input Manager while reading an
+    /// explicitly assigned gamepad through the New Input System.
+    /// </summary>
     public sealed class PlayerInputHandler : MonoBehaviour, IPlayerInput
     {
         [SerializeField] private bool isPlayerOne = true;
-        [SerializeField, Range(0f, 0.95f)] private float controllerDeadZone = 0.2f;
+        [SerializeField] private InputActionAsset controllerActions;
+
+        private InputActionAsset runtimeActions;
+        private InputAction moveAction;
+        private InputAction jumpAction;
+        private InputAction punchAction;
+        private InputAction dashAction;
+        private InputAction blockAction;
+        private Gamepad assignedGamepad;
 
         public float MoveInput { get; private set; }
         public bool IsPlayerOne => isPlayerOne;
@@ -19,125 +30,105 @@ namespace KnockoutBalance
 
         public void Configure(bool playerOne) => isPlayerOne = playerOne;
 
+        private void Awake()
+        {
+            if (controllerActions == null)
+                controllerActions = Resources.Load<InputActionAsset>("KnockoutBalanceControls");
+
+            if (controllerActions == null)
+            {
+                Debug.LogError("KnockoutBalanceControls.inputactions is missing. Run Knockout Balance > Install Gameplay Components.", this);
+                return;
+            }
+
+            runtimeActions = Instantiate(controllerActions);
+            InputActionMap map = runtimeActions.FindActionMap("Gamepad", true);
+            moveAction = map.FindAction("Move", true);
+            jumpAction = map.FindAction("Jump", true);
+            punchAction = map.FindAction("Punch", true);
+            dashAction = map.FindAction("Dash", true);
+            blockAction = map.FindAction("Block", true);
+            RefreshAssignedGamepad();
+        }
+
+        private void OnEnable()
+        {
+            InputSystem.onDeviceChange += OnDeviceChange;
+            RefreshAssignedGamepad();
+        }
+
+        private void OnDisable()
+        {
+            InputSystem.onDeviceChange -= OnDeviceChange;
+            if (runtimeActions != null) runtimeActions.Disable();
+        }
+
+        private void OnDestroy()
+        {
+            if (runtimeActions != null) Destroy(runtimeActions);
+        }
+
+        private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+        {
+            if (device is Gamepad) RefreshAssignedGamepad();
+        }
+
+        private void RefreshAssignedGamepad()
+        {
+            if (runtimeActions == null) return;
+
+            int gamepadIndex = isPlayerOne ? 0 : 1;
+            Gamepad desired = Gamepad.all.Count > gamepadIndex ? Gamepad.all[gamepadIndex] : null;
+            if (desired == assignedGamepad && (desired == null || runtimeActions.enabled)) return;
+
+            runtimeActions.Disable();
+            assignedGamepad = desired;
+            if (assignedGamepad == null) return;
+
+            // Each player owns a cloned action asset restricted to exactly one
+            // device, preventing both players from responding to Gamepad 1.
+            runtimeActions.devices = new InputDevice[] { assignedGamepad };
+            runtimeActions.Enable();
+        }
+
         private void Update()
         {
+            // Gamepad order can change after a removal. Re-evaluate so Player 1
+            // takes the first remaining pad and Player 2 takes the second.
+            RefreshAssignedGamepad();
+
             float keyboardMove = 0f;
-            bool jumpDown = false;
-            bool jumpUp = false;
-            bool punchDown = false;
-            bool block = false;
-            bool dashDown = false;
+            bool keyboardJumpPressed = false;
+            bool keyboardJumpReleased = false;
+            bool keyboardPunchPressed = false;
+            bool keyboardDashPressed = false;
+            bool keyboardBlockHeld = false;
 
-            // 1. New Input System Keyboard
-            var keyboard = Keyboard.current;
-            if (keyboard != null)
-            {
-                if (isPlayerOne)
-                {
-                    if (keyboard.dKey.isPressed) keyboardMove += 1f;
-                    if (keyboard.aKey.isPressed) keyboardMove -= 1f;
+#if ENABLE_LEGACY_INPUT_MANAGER
+            KeyCode left = isPlayerOne ? KeyCode.A : KeyCode.LeftArrow;
+            KeyCode right = isPlayerOne ? KeyCode.D : KeyCode.RightArrow;
+            KeyCode jump = isPlayerOne ? KeyCode.W : KeyCode.UpArrow;
+            KeyCode punch = isPlayerOne ? KeyCode.J : KeyCode.Keypad1;
+            KeyCode dash = isPlayerOne ? KeyCode.Q : KeyCode.Keypad0;
+            KeyCode block = isPlayerOne ? KeyCode.K : KeyCode.Keypad2;
 
-                    jumpDown |= keyboard.wKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame;
-                    jumpUp |= keyboard.wKey.wasReleasedThisFrame || keyboard.spaceKey.wasReleasedThisFrame;
-                    punchDown |= keyboard.jKey.wasPressedThisFrame || keyboard.fKey.wasPressedThisFrame;
-                    block |= keyboard.kKey.isPressed || keyboard.gKey.isPressed;
-                    dashDown |= keyboard.qKey.wasPressedThisFrame || keyboard.leftShiftKey.wasPressedThisFrame;
-                }
-                else
-                {
-                    if (keyboard.rightArrowKey.isPressed) keyboardMove += 1f;
-                    if (keyboard.leftArrowKey.isPressed) keyboardMove -= 1f;
+            keyboardMove = (Input.GetKey(right) ? 1f : 0f) - (Input.GetKey(left) ? 1f : 0f);
+            keyboardJumpPressed = Input.GetKeyDown(jump);
+            keyboardJumpReleased = Input.GetKeyUp(jump);
+            keyboardPunchPressed = Input.GetKeyDown(punch);
+            keyboardDashPressed = Input.GetKeyDown(dash);
+            keyboardBlockHeld = Input.GetKey(block);
+#endif
 
-                    jumpDown |= keyboard.upArrowKey.wasPressedThisFrame;
-                    jumpUp |= keyboard.upArrowKey.wasReleasedThisFrame;
-                    punchDown |= keyboard.numpad1Key.wasPressedThisFrame || keyboard.digit1Key.wasPressedThisFrame;
-                    block |= keyboard.numpad2Key.isPressed || keyboard.digit2Key.isPressed;
-                    dashDown |= keyboard.numpad0Key.wasPressedThisFrame || keyboard.digit0Key.wasPressedThisFrame;
-                }
-            }
+            bool gamepadReady = assignedGamepad != null && runtimeActions != null && runtimeActions.enabled;
+            float gamepadMove = gamepadReady ? moveAction.ReadValue<float>() : 0f;
 
-            // 2. New Input System Gamepad
-            float controllerMove = 0f;
-            Gamepad gamepad = null;
-            if (isPlayerOne && Gamepad.all.Count > 0)
-                gamepad = Gamepad.all[0];
-            else if (!isPlayerOne && Gamepad.all.Count > 1)
-                gamepad = Gamepad.all[1];
-
-            if (gamepad != null)
-            {
-                float stick = gamepad.leftStick.x.ReadValue();
-                float dpad = gamepad.dpad.x.ReadValue();
-                float val = Mathf.Abs(dpad) > Mathf.Abs(stick) ? dpad : stick;
-                controllerMove = Mathf.Abs(val) < controllerDeadZone ? 0f : Mathf.Clamp(val, -1f, 1f);
-
-                jumpDown |= gamepad.buttonSouth.wasPressedThisFrame || gamepad.buttonEast.wasPressedThisFrame;
-                jumpUp |= gamepad.buttonSouth.wasReleasedThisFrame || gamepad.buttonEast.wasReleasedThisFrame;
-                punchDown |= gamepad.buttonWest.wasPressedThisFrame;
-                block |= gamepad.buttonNorth.isPressed || gamepad.rightTrigger.isPressed || gamepad.leftTrigger.isPressed;
-                dashDown |= gamepad.rightShoulder.wasPressedThisFrame || gamepad.leftShoulder.wasPressedThisFrame;
-            }
-
-            // 3. Safe fallback for Legacy Input Manager (only when enabled and active)
-            #if ENABLE_LEGACY_INPUT_MANAGER
-            try
-            {
-                if (keyboardMove == 0f && controllerMove == 0f)
-                {
-                    KeyCode left = isPlayerOne ? KeyCode.A : KeyCode.LeftArrow;
-                    KeyCode right = isPlayerOne ? KeyCode.D : KeyCode.RightArrow;
-                    float legKb = (Input.GetKey(right) ? 1f : 0f) - (Input.GetKey(left) ? 1f : 0f);
-                    float legCtrl = ReadLegacyControllerMove();
-                    float legacyMove = Mathf.Abs(legKb) > 0f ? legKb : legCtrl;
-                    if (Mathf.Abs(legacyMove) > 0f) keyboardMove = legacyMove;
-
-                    KeyCode jumpKey = isPlayerOne ? KeyCode.W : KeyCode.UpArrow;
-                    KeyCode punchKey = isPlayerOne ? KeyCode.J : KeyCode.Keypad1;
-                    KeyCode blockKey = isPlayerOne ? KeyCode.K : KeyCode.Keypad2;
-                    KeyCode dashKey = isPlayerOne ? KeyCode.Q : KeyCode.Keypad0;
-
-                    jumpDown |= Input.GetKeyDown(jumpKey) || Input.GetKeyDown(LegacyControllerButton(1));
-                    jumpUp |= Input.GetKeyUp(jumpKey) || Input.GetKeyUp(LegacyControllerButton(1));
-                    punchDown |= Input.GetKeyDown(punchKey) || Input.GetKeyDown(LegacyControllerButton(0));
-                    block |= Input.GetKey(blockKey) || Input.GetKey(LegacyControllerButton(3));
-                    dashDown |= Input.GetKeyDown(dashKey) || Input.GetKeyDown(LegacyControllerButton(2));
-                }
-            }
-            catch (System.InvalidOperationException)
-            {
-                // Thrown if activeInputHandler is New Input System only; safely ignored
-            }
-            #endif
-
-            MoveInput = Mathf.Abs(keyboardMove) > 0f ? keyboardMove : controllerMove;
-            JumpPressed = jumpDown;
-            JumpReleased = jumpUp;
-            PunchPressed = punchDown;
-            BlockHeld = block;
-            DashPressed = dashDown;
+            MoveInput = Mathf.Abs(keyboardMove) > 0.01f ? keyboardMove : gamepadMove;
+            JumpPressed = keyboardJumpPressed || (gamepadReady && jumpAction.WasPressedThisFrame());
+            JumpReleased = keyboardJumpReleased || (gamepadReady && jumpAction.WasReleasedThisFrame());
+            PunchPressed = keyboardPunchPressed || (gamepadReady && punchAction.WasPressedThisFrame());
+            DashPressed = keyboardDashPressed || (gamepadReady && dashAction.WasPressedThisFrame());
+            BlockHeld = keyboardBlockHeld || (gamepadReady && blockAction.IsPressed());
         }
-
-        #if ENABLE_LEGACY_INPUT_MANAGER
-        private KeyCode LegacyControllerButton(int button)
-        {
-            return (KeyCode)((isPlayerOne ? (int)KeyCode.Joystick1Button0 : (int)KeyCode.Joystick2Button0) + button);
-        }
-
-        private float ReadLegacyControllerMove()
-        {
-            string stick = isPlayerOne ? "P1_StickHorizontal" : "P2_StickHorizontal";
-            string dpad = isPlayerOne ? "P1_DPadHorizontal" : "P2_DPadHorizontal";
-            float stickValue = SafeAxis(stick);
-            float dpadValue = SafeAxis(dpad);
-            float value = Mathf.Abs(dpadValue) > Mathf.Abs(stickValue) ? dpadValue : stickValue;
-            return Mathf.Abs(value) < controllerDeadZone ? 0f : Mathf.Clamp(value, -1f, 1f);
-        }
-
-        private static float SafeAxis(string axisName)
-        {
-            try { return Input.GetAxisRaw(axisName); }
-            catch { return 0f; }
-        }
-        #endif
     }
 }

@@ -14,6 +14,7 @@ namespace KnockoutBalance.Editor
         private const string PlayerLayerName = "Player";
         private const string GroundLayerName = "Ground";
         private const string RunningSheetPath = "Assets/Sprite/running.png";
+        private const string ControllerActionsPath = "Assets/Resources/KnockoutBalanceControls.inputactions";
         private const float SpawnClearance = 0.005f;
 
         [MenuItem("Knockout Balance/Install Gameplay Components")]
@@ -48,11 +49,92 @@ namespace KnockoutBalance.Editor
             manager.Initialize(p1, p2, seesaw);
             ConfigureAnimations(playerOne, true);
             ConfigureAnimations(playerTwo, false);
+            ConfigureDynamicCamera(playerOne, playerTwo);
             GetOrAdd<GameUI>(FindOrCreate("GameUI"));
             AssetDatabase.SaveAssets();
             EditorSceneManager.MarkSceneDirty(platform.scene);
             Selection.activeGameObject = platform;
             Debug.Log("Knockout Balance gameplay components installed on platform_0, default_7, and default_0.");
+        }
+
+        private static void ConfigureDynamicCamera(GameObject playerOne, GameObject playerTwo)
+        {
+            Camera mainCamera = Camera.main;
+            if (mainCamera == null) mainCamera = Object.FindFirstObjectByType<Camera>();
+            if (mainCamera == null)
+                throw new System.InvalidOperationException("The scene needs a Main Camera for DynamicCamera.");
+
+            mainCamera.orthographic = true;
+            DynamicCamera dynamicCamera = GetOrAdd<DynamicCamera>(mainCamera.gameObject);
+
+            GameObject backgroundObject = GameObject.Find("Background_Fixed");
+            if (backgroundObject == null) backgroundObject = GameObject.Find("backgroundd_0");
+            SpriteRenderer background = backgroundObject != null
+                ? backgroundObject.GetComponent<SpriteRenderer>()
+                : mainCamera.GetComponentInChildren<SpriteRenderer>(true);
+            GameObject borderObject = GameObject.Find("Border_Fixed");
+            if (borderObject == null) borderObject = GameObject.Find("border_0");
+            SpriteRenderer border = borderObject != null ? borderObject.GetComponent<SpriteRenderer>() : null;
+
+            dynamicCamera.Configure(playerOne.transform, playerTwo.transform, background, border);
+            SerializedObject serializedCamera = new SerializedObject(dynamicCamera);
+            serializedCamera.FindProperty("player1").objectReferenceValue = playerOne.transform;
+            serializedCamera.FindProperty("player2").objectReferenceValue = playerTwo.transform;
+            serializedCamera.FindProperty("minZoom").floatValue = 5f;
+            serializedCamera.FindProperty("maxZoom").floatValue = 8f;
+            serializedCamera.FindProperty("zoomLimiter").floatValue = 10f;
+            serializedCamera.FindProperty("smoothTime").floatValue = 0.2f;
+            serializedCamera.FindProperty("offset").vector3Value = new Vector3(0f, 1f, -10f);
+            serializedCamera.FindProperty("deathYThreshold").floatValue = -5f;
+            serializedCamera.FindProperty("fixedBackground").objectReferenceValue = background;
+            serializedCamera.FindProperty("backgroundPadding").floatValue = 1.05f;
+            serializedCamera.FindProperty("displayBorder").objectReferenceValue = border;
+            serializedCamera.FindProperty("borderOverscan").floatValue = 1.04f;
+            serializedCamera.FindProperty("borderVerticalScale").floatValue = 1.03f;
+            serializedCamera.ApplyModifiedPropertiesWithoutUndo();
+
+            if (background == null)
+            {
+                Debug.LogWarning("DynamicCamera could not find Background_Fixed or backgroundd_0; camera tracking is installed, but background coverage was not configured.");
+                return;
+            }
+
+            Transform backgroundTransform = background.transform;
+            float backgroundDepth = Mathf.Abs(backgroundTransform.position.z - mainCamera.transform.position.z);
+            if (backgroundDepth < 1f) backgroundDepth = 100f;
+            backgroundTransform.SetParent(mainCamera.transform, false);
+            backgroundTransform.localPosition = new Vector3(0f, 0f, backgroundDepth);
+            backgroundTransform.localRotation = Quaternion.identity;
+
+            Vector2 spriteSize = background.sprite.bounds.size;
+            float requiredHeight = 8f * 2f * 1.05f;
+            float requiredWidth = requiredHeight * mainCamera.aspect;
+            float backgroundScale = Mathf.Max(
+                requiredWidth / Mathf.Max(0.01f, spriteSize.x),
+                requiredHeight / Mathf.Max(0.01f, spriteSize.y));
+            backgroundTransform.localScale = new Vector3(backgroundScale, backgroundScale, 1f);
+
+            if (border == null)
+            {
+                Debug.LogWarning("DynamicCamera could not find Border_Fixed or border_0; the display border was not configured.");
+                return;
+            }
+
+            Transform borderTransform = border.transform;
+            borderTransform.SetParent(mainCamera.transform, false);
+            borderTransform.localRotation = Quaternion.identity;
+            Vector2 borderSize = border.sprite.bounds.size;
+            float viewHeight = mainCamera.orthographicSize * 2f;
+            float viewWidth = viewHeight * mainCamera.aspect;
+            float borderScaleX = viewWidth / Mathf.Max(0.01f, borderSize.x) * 1.04f;
+            float borderScaleY = viewHeight / Mathf.Max(0.01f, borderSize.y) * 1.04f * 1.03f;
+            borderTransform.localScale = new Vector3(borderScaleX, borderScaleY, 1f);
+            Vector2 borderCenter = border.sprite.bounds.center;
+            borderTransform.localPosition = new Vector3(
+                -borderCenter.x * borderScaleX,
+                -borderCenter.y * borderScaleY,
+                1f);
+            border.sortingOrder = 1000;
         }
 
         private static SeesawController ConfigurePlatform(GameObject platform, int groundLayer, out BoxCollider2D collider)
@@ -159,6 +241,13 @@ namespace KnockoutBalance.Editor
 
             PlayerInputHandler input = GetOrAdd<PlayerInputHandler>(player);
             input.Configure(isPlayerOne);
+            UnityEngine.InputSystem.InputActionAsset controllerActions =
+                AssetDatabase.LoadAssetAtPath<UnityEngine.InputSystem.InputActionAsset>(ControllerActionsPath);
+            if (controllerActions == null)
+                throw new System.InvalidOperationException("Could not load controller actions at '" + ControllerActionsPath + "'.");
+            SerializedObject serializedInput = new SerializedObject(input);
+            serializedInput.FindProperty("controllerActions").objectReferenceValue = controllerActions;
+            serializedInput.ApplyModifiedPropertiesWithoutUndo();
             PlayerController controller = GetOrAdd<PlayerController>(player);
             controller.SetFacing(isPlayerOne ? 1 : -1);
             SerializedObject serializedController = new SerializedObject(controller);

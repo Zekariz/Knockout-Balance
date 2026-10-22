@@ -178,6 +178,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!115 &203967076
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: PlayerInputHandler
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
 --- !u!1 &234785794
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,6 +204,7 @@ GameObject:
   - component: {fileID: 234785797}
   - component: {fileID: 234785796}
   - component: {fileID: 234785795}
+  - component: {fileID: 234785798}
   m_Layer: 0
   m_Name: FallBoundaryRight
   m_TagString: Untagged
@@ -269,6 +285,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &234785798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234785794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1699738991}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.FallBoundary
+--- !u!115 &478383887
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: PlayerCombat
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,6 +324,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -403,9 +447,36 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 890829604}
+  - {fileID: 1991431555}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e40cff337e24053ac1791a7802b6e17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.DynamicCamera
+  player1: {fileID: 1119976494}
+  player2: {fileID: 532199675}
+  minZoom: 5
+  maxZoom: 8
+  zoomLimiter: 10
+  smoothTime: 0.2
+  offset: {x: 0, y: 1, z: -10}
+  deathYThreshold: -5
+  fixedBackground: {fileID: 890829603}
+  backgroundPadding: 1.05
+  displayBorder: {fileID: 1991431554}
+  borderOverscan: 1.04
+  borderVerticalScale: 1.03
 --- !u!1 &532199673
 GameObject:
   m_ObjectHideFlags: 0
@@ -422,6 +493,15 @@ GameObject:
   - component: {fileID: 532199676}
   - component: {fileID: 532199682}
   - component: {fileID: 532199681}
+  - component: {fileID: 532199686}
+  - component: {fileID: 532199685}
+  - component: {fileID: 532199683}
+  - component: {fileID: 532199684}
+  - component: {fileID: 532199687}
+  - component: {fileID: 532199688}
+  - component: {fileID: 532199689}
+  - component: {fileID: 532199690}
+  - component: {fileID: 532199691}
   m_Layer: 8
   m_Name: default_0
   m_TagString: Untagged
@@ -501,7 +581,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerInputHandler
   isPlayerOne: 0
-  controllerDeadZone: 0.2
+  controllerActions: {fileID: -944628639613478452, guid: 920eda1b6133497493eeb25e512c039a, type: 3}
 --- !u!70 &532199679
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -600,6 +680,185 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &532199683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 761032447}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerController
+  walkSpeed: 3.5
+  runSpeed: 5.5
+  groundAcceleration: 45
+  jumpVelocity: 8.5
+  runDelay: 0.35
+  dashSpeed: 10
+  dashDuration: 0.28
+  dashCooldown: 0.65
+  teeterEdgeDistance: 0.55
+  groundProbeDistance: 0.18
+--- !u!114 &532199684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1382426666}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerAnimatorDriver
+--- !u!114 &532199685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 478383887}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerCombat
+  punchStartup: 0.12
+  punchActive: 0.1
+  punchRecovery: 0.28
+  damagePerPunch: 10
+  baseKnockback: 5.5
+  knockbackScaling: 0.035
+  punchCooldown: 0.25
+  comboResetDelay: 2
+  comboStunDuration: 1
+--- !u!114 &532199686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 203967076}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerInputHandler
+  isPlayerOne: 0
+  controllerActions: {fileID: -944628639613478452, guid: 920eda1b6133497493eeb25e512c039a, type: 3}
+--- !u!114 &532199687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 761032447}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerController
+  walkSpeed: 3.5
+  runSpeed: 5.5
+  groundAcceleration: 45
+  jumpVelocity: 8.5
+  runDelay: 0.35
+  dashSpeed: 10
+  dashDuration: 0.28
+  dashCooldown: 0.65
+  teeterEdgeDistance: 0.55
+  groundProbeDistance: 0.18
+--- !u!114 &532199688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 761032447}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerController
+  walkSpeed: 3.5
+  runSpeed: 5.5
+  groundAcceleration: 45
+  jumpVelocity: 8.5
+  runDelay: 0.35
+  dashSpeed: 10
+  dashDuration: 0.28
+  dashCooldown: 0.65
+  teeterEdgeDistance: 0.55
+  groundProbeDistance: 0.18
+--- !u!114 &532199689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 761032447}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerController
+  walkSpeed: 3.5
+  runSpeed: 5.5
+  groundAcceleration: 45
+  jumpVelocity: 8.5
+  runDelay: 0.35
+  dashSpeed: 10
+  dashDuration: 0.28
+  dashCooldown: 0.65
+  teeterEdgeDistance: 0.55
+  groundProbeDistance: 0.18
+--- !u!114 &532199690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 761032447}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerController
+  walkSpeed: 3.5
+  runSpeed: 5.5
+  groundAcceleration: 45
+  jumpVelocity: 8.5
+  runDelay: 0.35
+  dashSpeed: 10
+  dashDuration: 0.28
+  dashCooldown: 0.65
+  teeterEdgeDistance: 0.55
+  groundProbeDistance: 0.18
+--- !u!114 &532199691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532199673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 761032447}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerController
+  walkSpeed: 3.5
+  runSpeed: 5.5
+  groundAcceleration: 45
+  jumpVelocity: 8.5
+  runDelay: 0.35
+  dashSpeed: 10
+  dashDuration: 0.28
+  dashCooldown: 0.65
+  teeterEdgeDistance: 0.55
+  groundProbeDistance: 0.18
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -684,6 +943,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!115 &718753158
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: RoundManager
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
+--- !u!115 &757290915
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: SeesawController
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
 --- !u!1 &760610979
 GameObject:
   m_ObjectHideFlags: 0
@@ -698,6 +987,7 @@ GameObject:
   - component: {fileID: 760610984}
   - component: {fileID: 760610983}
   - component: {fileID: 760610982}
+  - component: {fileID: 760610986}
   m_Layer: 9
   m_Name: platform_0
   m_TagString: Untagged
@@ -895,6 +1185,38 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
+--- !u!114 &760610986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760610979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 757290915}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.SeesawController
+  halfLength: 10.6428
+  maximumAngularSpeed: 75
+  levelingStrength: 6
+  levelingDamping: 1.5
+  maximumLevelingTorque: 55
+--- !u!115 &761032447
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: PlayerController
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
 --- !u!1 &816393974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1071,11 +1393,11 @@ Transform:
   m_GameObject: {fileID: 890829602}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.1, y: -0.01, z: 100}
-  m_LocalScale: {x: 1.073006, y: 1.073006, z: 1.073006}
+  m_LocalPosition: {x: 0, y: 0, z: 110}
+  m_LocalScale: {x: 1.7862839, y: 1.7862839, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 519420032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &906401236
 GameObject:
@@ -1088,6 +1410,7 @@ GameObject:
   - component: {fileID: 906401239}
   - component: {fileID: 906401238}
   - component: {fileID: 906401237}
+  - component: {fileID: 906401240}
   m_Layer: 0
   m_Name: FallBoundaryLeft
   m_TagString: Untagged
@@ -1168,6 +1491,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &906401240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906401236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1699738991}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.FallBoundary
 --- !u!1 &987519203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1269,6 +1604,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1087813668}
   - component: {fileID: 1087813667}
+  - component: {fileID: 1087813669}
   m_Layer: 0
   m_Name: GameUI
   m_TagString: Untagged
@@ -1304,6 +1640,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1087813669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1087813666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1657123401}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.GameUI
+  fontSize: 30
 --- !u!1 &1119976492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1320,6 +1669,10 @@ GameObject:
   - component: {fileID: 1119976495}
   - component: {fileID: 1119976501}
   - component: {fileID: 1119976500}
+  - component: {fileID: 1119976505}
+  - component: {fileID: 1119976502}
+  - component: {fileID: 1119976504}
+  - component: {fileID: 1119976503}
   m_Layer: 8
   m_Name: default_7
   m_TagString: Untagged
@@ -1399,7 +1752,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerInputHandler
   isPlayerOne: 1
-  controllerDeadZone: 0.2
+  controllerActions: {fileID: -944628639613478452, guid: 920eda1b6133497493eeb25e512c039a, type: 3}
 --- !u!70 &1119976498
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1498,6 +1851,75 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1119976502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119976492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 761032447}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerController
+  walkSpeed: 3.5
+  runSpeed: 5.5
+  groundAcceleration: 45
+  jumpVelocity: 8.5
+  runDelay: 0.35
+  dashSpeed: 10
+  dashDuration: 0.28
+  dashCooldown: 0.65
+  teeterEdgeDistance: 0.55
+  groundProbeDistance: 0.18
+--- !u!114 &1119976503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119976492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1382426666}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerAnimatorDriver
+--- !u!114 &1119976504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119976492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 478383887}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerCombat
+  punchStartup: 0.12
+  punchActive: 0.1
+  punchRecovery: 0.28
+  damagePerPunch: 10
+  baseKnockback: 5.5
+  knockbackScaling: 0.035
+  punchCooldown: 0.25
+  comboResetDelay: 2
+  comboStunDuration: 1
+--- !u!114 &1119976505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119976492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 203967076}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.PlayerInputHandler
+  isPlayerOne: 1
+  controllerActions: {fileID: -944628639613478452, guid: 920eda1b6133497493eeb25e512c039a, type: 3}
 --- !u!1 &1200871622
 GameObject:
   m_ObjectHideFlags: 0
@@ -1508,6 +1930,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1200871624}
   - component: {fileID: 1200871623}
+  - component: {fileID: 1200871625}
   m_Layer: 0
   m_Name: RoundManager
   m_TagString: Untagged
@@ -1546,6 +1969,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1200871625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1200871622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 718753158}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.RoundManager
+  winsRequired: 2
+  playerOne: {fileID: 1119976502}
+  playerTwo: {fileID: 532199683}
+  seesaw: {fileID: 760610986}
 --- !u!1 &1370062747
 GameObject:
   m_ObjectHideFlags: 0
@@ -1557,6 +1996,7 @@ GameObject:
   - component: {fileID: 1370062750}
   - component: {fileID: 1370062749}
   - component: {fileID: 1370062748}
+  - component: {fileID: 1370062751}
   m_Layer: 0
   m_Name: FallBoundaryBottom
   m_TagString: Untagged
@@ -1637,13 +2077,160 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1370062751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370062747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1699738991}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockoutBalance.FallBoundary
+--- !u!115 &1382426666
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: PlayerAnimatorDriver
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
+--- !u!115 &1657123401
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: GameUI
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
+--- !u!115 &1699738991
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: FallBoundary
+  m_Namespace: KnockoutBalance
+  m_AssemblyName: Assembly-CSharp
+--- !u!1 &1991431553
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1991431555}
+  - component: {fileID: 1991431554}
+  m_Layer: 0
+  m_Name: border_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!212 &1991431554
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991431553}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1000
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -2132956935838155565, guid: 16e34a73273a2a84db1dbdf1826af1f0, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 16.72, y: 9.41}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!4 &1991431555
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991431553}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: -0, z: 1}
+  m_LocalScale: {x: 1.1057948, y: 1.1383634, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 519420032}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 619394802}
-  - {fileID: 890829604}
   - {fileID: 760610981}
   - {fileID: 532199675}
   - {fileID: 1119976494}
